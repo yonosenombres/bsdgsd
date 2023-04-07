@@ -1,0 +1,622 @@
+local Rayfield = loadstring(game:HttpGet('https://raw.githubusercontent.com/shlexware/Rayfield/main/source'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "Booga Booga Reborn",
+   LoadingTitle = "Yes",
+   LoadingSubtitle = "by YesHub#6761",
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = nil, -- Create a custom folder for your hub/game
+      FileName = "Big Hub"
+   },
+   Discord = {
+      Enabled = true,
+      Invite = "V8xtqQzhdk", -- The Discord invite code, do not include discord.gg/
+      RememberJoins = true -- Set this to false to make them join the discord every time they load it up
+   },
+   KeySystem = false, -- Set this to true to use our key system
+   KeySettings = {
+      Title = "Sirius Hub",
+      Subtitle = "Key System",
+      Note = "Join the discord (discord.gg/sirius)",
+      FileName = "SiriusKey",
+      SaveKey = true,
+      GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
+      Key = "Hello"
+   }
+})
+local ESP = Window:CreateTab("ESP", 4483362458) -- Title, Image
+local Fm = Window:CreateTab("Farmear", 4483362458) -- Title, Image
+local pik = Window:CreateTab("Agarrar Items", 4483362458) -- Title, Image
+local pr = Window:CreateTab("Jugador", 4483362458) -- Title, Image
+
+-- Variables globales
+local nameState = nil
+local hpState = nil
+local localPlayer = game.Players.LocalPlayer
+local CurrentCamera = workspace.CurrentCamera
+local worldToViewportPoint = CurrentCamera.worldToViewportPoint
+local HeadOff = Vector3.new(0, 0.5, 0)
+local camera = game:GetService("Workspace").CurrentCamera
+
+local Toggle = ESP:CreateToggle({
+    Name = "Nombre de jugadores",
+    CurrentValue = false,
+    Flag = "Toggle1",
+    Callback = function(t)
+nameState = t
+    end,
+})
+
+local Toggle = ESP:CreateToggle({
+    Name = "Vida de jugadores",
+    CurrentValue = false,
+    Flag = "Toggle1",
+    Callback = function(t)
+hpState = t
+    end,
+})
+
+-- Crear una función para dibujar el texto del jugador
+local function esp_function(v)
+    local text = Drawing.new("Text")
+    local health = Drawing.new("Text")
+
+    local teamcolor = v.TeamColor
+    text.Visible = false
+    health.Visible = false
+    text.Center = true
+    health.Center = true
+    text.Outline = true
+    health.Outline = true
+    text.Font = 3
+    health.Font = 3
+    if v.Team then
+        text.Color = v.TeamColor.Color
+    else
+        text.Color = Color3.new(0, 255, 0)
+    end
+    
+    text.Size = 13
+    health.Size = 13
+    health.Color = Color3.new(0, 255, 0)
+    
+    local renderConnection = game:GetService("RunService").RenderStepped:Connect(function()
+        if v and v.Character and v.Character:FindFirstChild("Humanoid") and v.Character:FindFirstChild("HumanoidRootPart") and v ~= localPlayer and v.Character.Humanoid.Health > 0 then
+            
+            local Head = v.Character.Head
+            local Vector, onScreen = camera:worldToViewportPoint(v.Character.HumanoidRootPart.Position)
+            local HeadPosition = worldToViewportPoint(CurrentCamera, Head.Position + HeadOff)
+            
+            if onScreen then
+                text.Position = Vector2.new(HeadPosition.X, HeadPosition.Y - 20)
+                health.Position = Vector2.new(HeadPosition.X, HeadPosition.Y)
+                text.Text = v.Name
+                health.Text = "[" .. math.floor(v.Character.Humanoid.Health) .. "/" .. math.floor(v.Character.Humanoid.MaxHealth) .. "]"
+                text.Visible = nameState
+                health.Visible = hpState
+            else
+                text.Visible = false
+                health.Visible = false
+            end
+        else
+            text.Visible = false
+            health.Visible = false
+        end
+    end)
+    
+    local playerRemovingConnection = game.Players.PlayerRemoving:Connect(function(removedPlayer)
+        if removedPlayer == v then
+            text:Remove()
+            health:Remove()
+            renderConnection:Disconnect()
+            playerRemovingConnection:Disconnect()
+        end
+    end)
+end
+
+for i, v in pairs(game.Players:GetPlayers()) do
+    coroutine.wrap(esp_function)(v)
+end
+
+game.Players.PlayerAdded:Connect(function(newPlayer)
+    coroutine.wrap(esp_function)(newPlayer)
+end)
+
+
+-------
+local nameState = false
+local hpState = false
+local localPlayer = game.Players.LocalPlayer
+local CurrentCamera = workspace.CurrentCamera
+local worldToViewportPoint = CurrentCamera.worldToViewportPoint
+local HeadOff = Vector3.new(0, 0.5, 0)
+local camera = game:GetService("Workspace").CurrentCamera
+
+local Toggle1 = ESP:CreateToggle({
+    Name = "Nombre de jugadores del equipo",
+    CurrentValue = false,
+    Flag = "Toggle1",
+    Callback = function(t)
+        nameState = t
+    end,
+})
+
+local Toggle2 = ESP:CreateToggle({
+    Name = "Vida de jugadores del equipo",
+    CurrentValue = false,
+    Flag = "Toggle2",
+    Callback = function(t)
+        hpState = t
+    end,
+})
+
+function team_function(v)
+    local text2 = Drawing.new("Text")
+    local health2 = Drawing.new("Text")
+
+    local teamcolor = v.TeamColor
+    text2.Visible = false
+    health2.Visible = false
+    text2.Center = true
+    health2.Center = true
+    text2.Outline = true
+    health2.Outline = true
+    text2.Font = 3
+    health2.Font = 3
+
+    if v.Team then
+        text2.Color = v.TeamColor.Color
+    else
+        text2.Color = Color3.new(0, 255, 0)
+    end
+    
+    text2.Size = 13
+    health2.Size = 13
+    health2.Color = Color3.new(0, 255, 0)
+    
+    local renderConnection = game:GetService("RunService").RenderStepped:Connect(function()
+        if v and v.Character and v.Character:FindFirstChild("Humanoid") and v.Character:FindFirstChild("HumanoidRootPart") and v ~= localPlayer and v.Character.Humanoid.Health > 0 and v.TeamColor == localPlayer.TeamColor then
+            
+            local Head = v.Character.Head
+            local Vector, onScreen = camera:worldToViewportPoint(v.Character.HumanoidRootPart.Position)
+            local HeadPosition = worldToViewportPoint(CurrentCamera, Head.Position + HeadOff)
+            
+            if onScreen then
+                text2.Position = Vector2.new(HeadPosition.X, HeadPosition.Y - 20)
+                health2.Position = Vector2.new(HeadPosition.X, HeadPosition.Y)
+                text2.Text = v.Name
+                health2.Text = "[" .. math.floor(v.Character.Humanoid.Health) .. "/" .. math.floor(v.Character.Humanoid.MaxHealth) .. "]"
+                text2.Visible = nameState
+                health2.Visible = hpState
+            else
+                text2.Visible = false
+                health2.Visible = false
+            end
+        else
+            text2.Visible = false
+            health2.Visible = false
+        end
+    end)
+    
+    local playerRemovingConnection = game.Players.PlayerRemoving:Connect(function(removedPlayer)
+        if removedPlayer == v then
+            text2:Remove()
+            health2:Remove()
+            renderConnection:Disconnect()
+            playerRemovingConnection:Disconnect()
+        end
+    end)
+end
+
+for i, v in pairs(game.Players:GetPlayers()) do
+    coroutine.wrap(team_function)(v)
+end
+
+game.Players.PlayerAdded:Connect(function(newPlayer)
+    coroutine.wrap(team_function)(newPlayer)
+end)
+
+
+------------------------------------------------------
+
+
+
+local Toggle = Fm:CreateToggle({
+    Name = "Oro (Ice 4 Nodes)",
+    CurrentValue = false,
+    Flag = "Toggle1",
+    Callback = function(t)
+getgenv().orofarm = t
+        while getgenv().orofarm == true and wait() do
+            local A1 = CFrame.new(925, -3, -1389)
+            local A2 = CFrame.new(918, -1, -1416)
+            local A3 = CFrame.new(945, -3, -1428)
+            local A4 = CFrame.new(965, -3, -1398)
+            
+            local positions = {A1, A2, A3, A4}
+            local v = 10
+            
+            for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
+                local n = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+                if n then
+                    local tweens = {}
+                    for i = 1, #positions do
+                        local position = positions[i]
+                        local distance = math.abs((n.Position - position.Position).Magnitude)
+                        local duration = distance / v
+                        
+                        local tween = game:GetService("TweenService"):Create(n, TweenInfo.new(duration, Enum.EasingStyle.Linear), {CFrame = position})
+                        table.insert(tweens, tween)
+                    end
+                    
+                    for i = 1, #tweens do
+                        if getgenv().orofarm == false then
+                            break
+                        end
+                        
+                        local tween = tweens[i]
+                        tween:Play()
+                        tween.Completed:Wait()
+                    end
+                    
+                    for i = 1, #tweens do
+                        local tween = tweens[i]
+                        tween:Cancel()
+                    end
+                end
+            end
+        end            
+    end,
+})
+
+local Toggle = Fm:CreateToggle({
+    Name = "Grabar TP",
+    CurrentValue = false,
+    Flag = "Toggle1",
+    Callback = function(t)
+        getgenv().tp1c = t
+        spawn(function()
+                _G.SetFarmPos = t
+             
+                if _G.SetFarmPos then
+                    print("wsp")
+                    n = 1
+               _G.farmarray = {}
+                end
+               while _G.SetFarmPos and wait(.5) do
+                   print(n)
+               _G.farmarray[n] =  game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame
+               n = n + 1 
+               end
+        end)
+    end,
+ })
+
+ local Toggle = Fm:CreateToggle({
+    Name = "Empezar TP Grabado",
+    CurrentValue = false,
+    Flag = "Toggle1",
+    Callback = function(Value)
+        _G.autofarmfruit = Value
+        _G.farmarraylength = #(_G.farmarray)
+            print("Farm array length = ", farmarraylength)
+        while _G.autofarmfruit and wait() do
+for i = 1, _G.farmarraylength do
+    if _G.autofarmfruit == false then
+        i = 0 
+        _G.farmarraylength = 0
+    end
+    
+    print(i)
+    print(_G.farmarraylength)
+    game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = _G.farmarray[i]
+    wait(.8)
+end  
+end
+    end,
+ })
+
+
+local Toggle = pik:CreateToggle({
+    Name = "Agarrar Monedas",
+    CurrentValue = false,
+    Flag = "Toggle1",
+    Callback = function(t)
+        getgenv().pickcoin = t
+        spawn(function()
+            while getgenv().pickcoin == true and wait() do
+                wait()
+                pcall(
+                    function()
+                        local n = game:GetService("Players").LocalPlayer.Character.HumanoidRootPart
+                        local o = game:GetService("ReplicatedStorage")
+                        for b, c in pairs(game:GetService("Workspace").ItemDrops:GetChildren()) do
+                            if c:FindFirstChild("Pickup") then
+                                if c:IsA("BasePart") or c:IsA("UnionOpreation") then
+                                    if c.Name == "Coin2" then
+                                        if (n.Position - c.Position).Magnitude < 50 then
+                                            game:GetService("ReplicatedStorage").Events.Pickup:FireServer(
+                                                c
+                                            )
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                        for b, c in pairs(game:GetService("Workspace").ItemDrops:GetChildren()) do
+                            if c:FindFirstChild("Pickup") then
+                                if c:IsA("BasePart") or c:IsA("UnionOpreation") then
+                                    if c.Name == "Coin2" then
+                                        if (n.Position - c.Position).Magnitude < 50 then
+                                            game:GetService("ReplicatedStorage").Events.Pickup:FireServer(
+                                                c
+                                            )
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end)
+            end
+        end)
+    end,
+ })
+
+ local Toggle = pik:CreateToggle({
+    Name = "Agarrar Item De Los Cofres",
+    CurrentValue = false,
+    Flag = "Toggle1",
+    Callback = function(t)
+        getgenv().pickchest = t
+        spawn(function()
+            while getgenv().pickchest == true and wait() do
+                wait()
+                pcall(
+                    function()
+                        for i, v in pairs(game:GetService("Workspace").Deployables:GetChildren()) do
+                            if v.Name:find("Chest") then
+                        if (v.PrimaryPart.Position - game:GetService("Players").LocalPlayer.Character.UpperTorso.Position).magnitude < 50 then
+                        for i, c in pairs(v.Contents:GetChildren()) do
+                            if c:IsA("Part") or c:IsA("UnionOperation") or c:IsA("Model") or c:IsA("MeshPart") then
+                        game:GetService("ReplicatedStorage").Events.Pickup:FireServer(c)
+                        end
+                        end
+                        end
+                        end
+                        end
+                    end)
+            end
+        end)
+    end,
+ })
+
+ local Toggle = pik:CreateToggle({
+    Name = "Agarrar Items De Las Casillas",
+    CurrentValue = false,
+    Flag = "Toggle1",
+    Callback = function(t)
+        getgenv().pickw = t
+        spawn(function()
+            while getgenv().pickw == true and wait() do
+                pcall(
+                    function()
+                        local n = game:GetService("Players").LocalPlayer.Character.HumanoidRootPart
+                        local o = game:GetService("ReplicatedStorage")
+                        for b, c in pairs(game:GetService("Workspace"):GetChildren()) do
+                            if c:FindFirstChild("Pickup") then
+                                if c:IsA("BasePart") or c:IsA("UnionOpreation") then
+                                    if c.Name == getgenv().getitem then
+                                        if (n.Position - c.Position).Magnitude < 50 then
+                                            game:GetService("ReplicatedStorage").Events.Pickup:FireServer(
+                                                c
+                                            )
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                        for b, c in pairs(game:GetService("Workspace").Items:GetChildren()) do
+                            if c:FindFirstChild("Pickup") then
+                                if c:IsA("BasePart") or c:IsA("UnionOpreation") then
+                                    if c.Name == getgenv().getitem1 or c.Name == getgenv().getitem2 or c.Name == getgenv().getitem3 or c.Name == getgenv().getitem4 or c.Name == getgenv().getitem5 or c.Name == getgenv().getitem6 or c.Name == getgenv().getitem7 then
+                                        if (n.Position - c.Position).Magnitude < 50 then
+                                            game:GetService("ReplicatedStorage").Events.Pickup:FireServer(
+                                                c
+                                            )
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end)
+            end
+        end)
+    end,
+ })
+
+ local Input = pik:CreateInput({
+    Name = "Casilla 1",
+    PlaceholderText = "Input Placeholder",
+    RemoveTextAfterFocusLost = false,
+    Callback = function(t)
+        getgenv().getitem1 = t
+    end,
+ })
+
+ local Input = pik:CreateInput({
+    Name = "Casilla 2",
+    PlaceholderText = "Input Placeholder",
+    RemoveTextAfterFocusLost = false,
+    Callback = function(t)
+        getgenv().getitem2 = t
+    end,
+ })
+
+ local Input = pik:CreateInput({
+    Name = "Casilla 3",
+    PlaceholderText = "Input Placeholder",
+    RemoveTextAfterFocusLost = false,
+    Callback = function(t)
+        getgenv().getitem3 = t
+
+    end,
+ })
+
+ local Input = pik:CreateInput({
+    Name = "Casilla 4",
+    PlaceholderText = "Input Placeholder",
+    RemoveTextAfterFocusLost = false,
+    Callback = function(t)
+        getgenv().getitem4 = t
+
+    end,
+ })
+
+ local Input = pik:CreateInput({
+    Name = "Casilla 5",
+    PlaceholderText = "Input Placeholder",
+    RemoveTextAfterFocusLost = false,
+    Callback = function(t)
+        getgenv().getitem5 = t
+
+    end,
+ })
+
+ local Input = pik:CreateInput({
+    Name = "Casilla 6",
+    PlaceholderText = "Input Placeholder",
+    RemoveTextAfterFocusLost = false,
+    Callback = function(t)
+        getgenv().getitem6 = t
+    end,
+ })
+
+ local Input = pik:CreateInput({
+    Name = "Casilla 7",
+    PlaceholderText = "Input Placeholder",
+    RemoveTextAfterFocusLost = false,
+    Callback = function(t)
+        getgenv().getitem7 = t
+    end,
+ })
+
+
+ local Input = pr:CreateInput({
+    Name = "Keybind de velocidad - 1",
+    PlaceholderText = "Input Placeholder",
+    RemoveTextAfterFocusLost = false,
+    Callback = function(t)
+        getgenv().keyspeed = t
+    end,
+ })
+
+ local Slider = pr:CreateSlider({
+    Name = "Velocidad - 1",
+    Range = {16, 18.5},
+    Increment = 0.1,
+    Suffix = "Steps",
+    CurrentValue = 0,
+    Flag = "Slider1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+    Callback = function(t)
+        game.Players.LocalPlayer:GetMouse().KeyDown:Connect(function(key)
+            if key == getgenv().keyspeed then
+                   _G.WS = t;
+                    local Humanoid = game:GetService("Players").LocalPlayer.Character.Humanoid;
+                    Humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
+                    Humanoid.WalkSpeed = _G.WS;
+                    end)
+                    Humanoid.WalkSpeed = _G.WS;
+                end
+                end)
+        
+    end,
+ })
+
+ local Input = pr:CreateInput({
+    Name = "Keybind de velocidad - 2",
+    PlaceholderText = "Input Placeholder",
+    RemoveTextAfterFocusLost = false,
+    Callback = function(t)
+        getgenv().keyspeed2 = t
+    end,
+ })
+
+ local Slider = pr:CreateSlider({
+    Name = "Velocidad - 2",
+    Range = {16, 18.5},
+    Increment = 0.1,
+    Suffix = "Steps",
+    CurrentValue = 0,
+    Flag = "Slider1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+    Callback = function(t)
+        game.Players.LocalPlayer:GetMouse().KeyDown:Connect(function(key)
+            if key == getgenv().keyspeed2 then
+                   _G.WS = t;
+                    local Humanoid = game:GetService("Players").LocalPlayer.Character.Humanoid;
+                    Humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
+                    Humanoid.WalkSpeed = _G.WS;
+                    end)
+                    Humanoid.WalkSpeed = _G.WS;
+                end
+                end)
+        
+    end,
+ })
+
+ local Input = pr:CreateInput({
+    Name = "Keybind de velocidad - 3",
+    PlaceholderText = "Input Placeholder",
+    RemoveTextAfterFocusLost = false,
+    Callback = function(t)
+        getgenv().keyspeed3 = t
+    end,
+ })
+
+ local Slider = pr:CreateSlider({
+    Name = "Velocidad - 3",
+    Range = {16, 18.5},
+    Increment = 0.1,
+    Suffix = "Steps",
+    CurrentValue = 0,
+    Flag = "Slider1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+    Callback = function(t)
+        game.Players.LocalPlayer:GetMouse().KeyDown:Connect(function(key)
+            if key == getgenv().keyspeed3 then
+                   _G.WS = t;
+                    local Humanoid = game:GetService("Players").LocalPlayer.Character.Humanoid;
+                    Humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
+                    Humanoid.WalkSpeed = _G.WS;
+                    end)
+                    Humanoid.WalkSpeed = _G.WS;
+                end
+                end)
+        
+    end,
+ })
+
+ local Input = pr:CreateInput({
+    Name = "Keybind de velocidad normal (16)",
+    PlaceholderText = "Input Placeholder",
+    RemoveTextAfterFocusLost = false,
+    Callback = function(t)
+        getgenv().keyspeednormal = t
+    end,
+ })
+
+ local Toggle = pr:CreateToggle({
+    Name = "Velocidad Normal Con Keybind",
+    CurrentValue = false,
+    Flag = "Toggle1",
+    Callback = function(t)
+        game.Players.LocalPlayer:GetMouse().KeyDown:Connect(function(key)
+            if key == getgenv().keyspeednormal then
+        _G.WS = 16;
+        local Humanoid = game:GetService("Players").LocalPlayer.Character.Humanoid;
+        Humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
+        Humanoid.WalkSpeed = _G.WS;
+        end)
+        Humanoid.WalkSpeed = _G.WS;
+    end end)
+    end,
+})
